@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - Vacanzy</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .confirmation-message {
+            background-color: #e8f5e8;
+            border-left: 4px solid #28a745;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .confirmation-message h3 {
+            color: #28a745;
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        .details-section {
+            margin: 30px 0;
+        }
+        .section-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .detail-value {
+            color: #333;
+            text-align: right;
+        }
+        .total-row {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+        }
+        .total-row .detail-row {
+            border-bottom: none;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .property-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #dee2e6;
+        }
+        .property-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .property-location {
+            color: #666;
+            font-size: 16px;
+        }
+        .booking-id {
+            background-color: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .footer-content {
+            margin-bottom: 20px;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        .contact-info {
+            font-size: 14px;
+            color: #ccc;
+            margin-top: 20px;
+        }
+        .cta-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 20px 0;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px 15px;
+            }
+            .detail-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .detail-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">VACANZY</div>
+            <div class="header-subtitle">Your Premium Holiday Rental Experience</div>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Dear {{to_name}},
+            </div>
+            
+            <div class="confirmation-message">
+                <h3>🎉 Booking Confirmed!</h3>
+                <p>Your reservation has been successfully confirmed. We're excited to host you!</p>
+            </div>
+            
+            <div class="property-card">
+                <div class="property-name">{{listing_title}}</div>
+                <div class="property-location">📍 {{location}}, {{country}}</div>
+                <div class="booking-id">Booking ID: {{booking_id}}</div>
+            </div>
+            
+            <div class="details-section">
+                <h2 class="section-title">📅 Booking Details</h2>
+                <div class="detail-row">
+                    <span class="detail-label">Check-in Date:</span>
+                    <span class="detail-value">{{check_in}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Check-out Date:</span>
+                    <span class="detail-value">{{check_out}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Number of Nights:</span>
+                    <span class="detail-value">{{number_of_nights}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Guest Name:</span>
+                    <span class="detail-value">{{to_name}}</span>
+                </div>
+            </div>
+            
+            <div class="details-section">
+                <h2 class="section-title">💰 Price Breakdown</h2>
+                <div class="detail-row">
+                    <span class="detail-label">Price per night:</span>
+                    <span class="detail-value">{{price_per_night}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Subtotal ({{number_of_nights}} nights):</span>
+                    <span class="detail-value">{{subtotal}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Service Fee:</span>
+                    <span class="detail-value">{{service_fee}}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Taxes:</span>
+                    <span class="detail-value">{{tax}}</span>
+                </div>
+                
+                <div class="total-row">
+                    <div class="detail-row">
+                        <span class="detail-label">Total Amount:</span>
+                        <span class="detail-value">{{total_price}}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="#" class="cta-button">View Booking Details</a>
+            </div>
+            
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #856404; margin: 0 0 10px 0;">📋 Important Information</h3>
+                <ul style="color: #856404; margin: 0; padding-left: 20px;">
+                    <li>Please arrive after 3:00 PM on your check-in date</li>
+                    <li>Check-out is before 11:00 AM on your departure date</li>
+                    <li>Please bring a valid ID for verification</li>
+                    <li>Contact us if you need to modify your reservation</li>
+                </ul>
+            </div>
+            
+            <div style="margin: 30px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+                <h3 style="color: #333; margin: 0 0 15px 0;">Need Help?</h3>
+                <p style="margin: 0 0 10px 0;">Our customer support team is here to help you 24/7.</p>
+                <p style="margin: 0;">
+                    📧 Email: support@vacanzy.com<br>
+                    📞 Phone: +1 (555) 123-4567<br>
+                    💬 Chat: Available on our website
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-content">
+                <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Thank you for choosing Vacanzy!</div>
+                <div>We hope you have an amazing stay.</div>
+                
+                <div class="social-links">
+                    <a href="#">Facebook</a>
+                    <a href="#">Instagram</a>
+                    <a href="#">Twitter</a>
+                </div>
+            </div>
+            
+            <div class="contact-info">
+                <div>Vacanzy - Premium Holiday Rentals</div>
+                <div>123 Travel Street, Adventure City, AC 12345</div>
+                <div>© 2025 Vacanzy. All rights reserved.</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

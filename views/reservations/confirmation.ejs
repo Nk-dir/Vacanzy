@@ -1,0 +1,63 @@
+<%- layout("layouts/boilerplate") %>
+
+<div class="row mt-3">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Booking Confirmation</h2>
+                
+                <div class="booking-details">
+                    <h4>Booking Reference: <%= reservation.bookingId %></h4>
+                    
+                    <div class="listing-info mt-4">
+                        <h5><%= listing.title %></h5>
+                        <p>
+                            <strong>Check-in:</strong> <%= reservation.checkIn.toLocaleDateString() %><br>
+                            <strong>Check-out:</strong> <%= reservation.checkOut.toLocaleDateString() %><br>
+                            <strong>Number of nights:</strong> <%= reservation.numberOfNights %>
+                        </p>
+                    </div>
+
+                    <div class="price-breakdown mt-4">
+                        <h5>Price Details</h5>
+                        <table class="table">
+                            <tr>
+                                <td>₹<%= listing.price.toLocaleString("en-IN") %> × <%= reservation.numberOfNights %> nights</td>
+                                <td class="text-end">₹<%= (listing.price * reservation.numberOfNights).toLocaleString("en-IN") %></td>
+                            </tr>
+                            <tr>
+                                <td>Service fee</td>
+                                <td class="text-end">₹<%= reservation.serviceFee.toLocaleString("en-IN") %></td>
+                            </tr>
+                            <tr>
+                                <td>Taxes</td>
+                                <td class="text-end">₹<%= reservation.tax.toLocaleString("en-IN") %></td>
+                            </tr>
+                            <tr class="fw-bold">
+                                <td>Total</td>
+                                <td class="text-end">₹<%= reservation.totalPrice.toLocaleString("en-IN") %></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-muted">
+                            <% if (locals.emailSent) { %>
+                                A confirmation email has been sent to <%= userEmail %>
+                            <% } else { %>
+                                We'll send a confirmation email to <%= userEmail %> shortly.
+                            <% } %>
+                        </p>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="/listings" class="btn btn-success">Back to Listings</a>
+                        <a href="/dashboard" class="btn btn-outline-primary ms-2">View My Bookings</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- script %>

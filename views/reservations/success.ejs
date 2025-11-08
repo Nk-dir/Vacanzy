@@ -1,0 +1,142 @@
+<%- layout("layouts/boilerplate") %>
+
+<div class="row mt-3">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="success-icon mb-3">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="card-title text-success">Booking Confirmed!</h2>
+                    <p class="text-muted">Your payment has been processed successfully</p>
+                </div>
+                
+                <div class="booking-details">
+                    <h4>Booking Reference: <%= reservation.bookingId %></h4>
+                    
+                    <div class="listing-info mt-4">
+                        <h5><%= listing.title %></h5>
+                        <p>
+                            <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                            <%= listing.location %>, <%= listing.country %>
+                        </p>
+                        <p>
+                            <strong>Check-in:</strong> <%= reservation.checkIn.toLocaleDateString() %><br>
+                            <strong>Check-out:</strong> <%= reservation.checkOut.toLocaleDateString() %><br>
+                            <strong>Number of nights:</strong> <%= reservation.numberOfNights %>
+                        </p>
+                    </div>
+
+                    <div class="price-breakdown mt-4">
+                        <h5>Payment Details</h5>
+                        <div class="bg-light p-3 rounded">
+                            <table class="table table-borderless mb-0">
+                                <tr>
+                                    <td>₹<%= listing.price.toLocaleString("en-IN") %> × <%= reservation.numberOfNights %> nights</td>
+                                    <td class="text-end">₹<%= (reservation.totalPrice - reservation.serviceFee - reservation.tax).toLocaleString("en-IN") %></td>
+                                </tr>
+                                <tr>
+                                    <td>Service fee</td>
+                                    <td class="text-end">₹<%= reservation.serviceFee.toLocaleString("en-IN") %></td>
+                                </tr>
+                                <tr>
+                                    <td>Taxes</td>
+                                    <td class="text-end">₹<%= reservation.tax.toLocaleString("en-IN") %></td>
+                                </tr>
+                                <tr class="fw-bold border-top">
+                                    <td>Total Paid</td>
+                                    <td class="text-end text-success">₹<%= reservation.totalPrice.toLocaleString("en-IN") %></td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-credit-card me-1"></i>
+                                Payment ID: <%= reservation.razorpayPaymentId %><br>
+                                <i class="fas fa-calendar me-1"></i>
+                                Payment Date: <%= reservation.paymentDate.toLocaleDateString() %>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div id="emailStatusAlert" class="alert alert-info mt-4">
+                        <i class="fas fa-envelope me-2"></i>
+                        <strong>Booking confirmed!</strong> 
+                        Your booking reference is: <%= reservation.bookingId %>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="/listings" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-2"></i>Browse More Properties
+                        </a>
+                        <a href="/dashboard" class="btn btn-outline-primary">
+                            <i class="fas fa-user me-2"></i>View My Bookings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email status display script -->
+<script>
+window.addEventListener('load', function() {
+    // Check email status from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailSent = urlParams.get('emailSent');
+    const emailStatusAlert = document.getElementById('emailStatusAlert');
+    
+    if (emailSent === 'true') {
+        emailStatusAlert.className = 'alert alert-success mt-4';
+        emailStatusAlert.innerHTML = `
+            <i class="fas fa-envelope me-2"></i>
+            <strong>Confirmation email sent!</strong> 
+            A detailed confirmation email has been sent to <%= userEmail %>
+        `;
+    } else if (emailSent === 'false') {
+        emailStatusAlert.className = 'alert alert-warning mt-4';
+        emailStatusAlert.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Email delivery issue</strong> 
+            We couldn't send the confirmation email, but your booking is confirmed! Please save your booking reference: <%= reservation.bookingId %>
+        `;
+    }
+    
+    // Legacy email sending (for backward compatibility)
+    const sendEmail = urlParams.get('sendEmail');
+    if (sendEmail === 'true' && typeof emailjs !== 'undefined') {
+        const emailData = {
+            email: '<%= userEmail %>',
+            user_email: '<%= userEmail %>',
+            to_email: '<%= userEmail %>',
+            to_name: '<%= userName %>',
+            order_id: '<%= reservation.bookingId %>',
+            booking_id: '<%= reservation.bookingId %>',
+            listing_title: '<%= listing.title %>',
+            price_per_night: '₹<%= listing.price.toLocaleString("en-IN") %>',
+            number_of_nights: '<%= reservation.numberOfNights %>',
+            subtotal: '₹<%= (reservation.totalPrice - reservation.serviceFee - reservation.tax).toLocaleString("en-IN") %>',
+            service_fee: '₹<%= reservation.serviceFee.toLocaleString("en-IN") %>',
+            tax: '₹<%= reservation.tax.toLocaleString("en-IN") %>',
+            total_price: '₹<%= reservation.totalPrice.toLocaleString("en-IN") %>',
+            check_in: '<%= reservation.checkIn.toLocaleDateString() %>',
+            check_out: '<%= reservation.checkOut.toLocaleDateString() %>',
+            location: '<%= listing.location %>',
+            country: '<%= listing.country %>'
+        };
+        
+        console.log('Sending confirmation email after successful payment...');
+        
+        emailjs.send('<%= process.env.EMAILJS_SERVICE_ID %>', '<%= process.env.EMAILJS_TEMPLATE_ID %>', emailData)
+            .then(function(response) {
+                console.log('Confirmation email sent successfully:', response);
+            })
+            .catch(function(error) {
+                console.error('Failed to send confirmation email:', error);
+            });
+    }
+});
+</script>

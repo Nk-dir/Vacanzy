@@ -1,0 +1,631 @@
+<%- layout("/layouts/boilerplate") %>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mb-3">
+                        <div class="avatar-circle">
+                            <%= user.username.charAt(0).toUpperCase() %>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Welcome, <%= user.username %>!</h5>
+                    <p class="text-muted"><%= user.email %></p>
+                </div>
+            </div>
+            
+            <div class="list-group mt-3">
+                <a href="/dashboard" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="/dashboard/profile" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user me-2"></i>Profile
+                </a>
+                <a href="/listings/new" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus me-2"></i>Add Listing
+                </a>
+                <% if (typeof ownedProperties !== 'undefined' && ownedProperties.length > 0) { %>
+                <a href="#host-section" class="list-group-item list-group-item-action" onclick="showHostSection()">
+                    <i class="fas fa-home me-2"></i>My Properties
+                </a>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Dashboard Toggle -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dashboard-toggle-container">
+                        <div class="toggle-header d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">
+                                <span id="currentViewTitle">
+                                    <i class="fas fa-suitcase me-2"></i>My Bookings
+                                </span>
+                            </h4>
+                            <div class="view-toggle">
+                                <button class="btn btn-toggle active" id="guestToggle" onclick="switchToGuest()">
+                                    <i class="fas fa-suitcase me-1"></i>Guest
+                                </button>
+                                <button class="btn btn-toggle" id="hostToggle" onclick="switchToHost()">
+                                    <i class="fas fa-home me-1"></i>Host
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- View Description -->
+                        <div class="view-description">
+                            <p id="guestDescription" class="text-muted mb-0">
+                                <i class="fas fa-info-circle me-1"></i>
+                                View your bookings and travel history as a guest
+                            </p>
+                            <p id="hostDescription" class="text-muted mb-0" style="display: none;">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Manage your properties and guest reservations as a host
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guest Stats Cards -->
+            <div id="guestStats" class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Bookings</h6>
+                                    <h3><%= totalBookings %></h3>
+                                </div>
+                                <i class="fas fa-calendar-check fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Upcoming</h6>
+                                    <h3><%= upcomingBookings.length %></h3>
+                                </div>
+                                <i class="fas fa-clock fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Current</h6>
+                                    <h3><%= currentBookings.length %></h3>
+                                </div>
+                                <i class="fas fa-map-marker-alt fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-secondary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Completed</h6>
+                                    <h3><%= pastBookings.length %></h3>
+                                </div>
+                                <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Host Stats Cards -->
+            <div id="hostStats" class="row mb-4" style="display: none;">
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">My Properties</h6>
+                                    <h3><%= (typeof ownedProperties !== 'undefined' ? ownedProperties.length : 0) %></h3>
+                                </div>
+                                <i class="fas fa-home fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Reservations</h6>
+                                    <h3><%= (typeof totalReservations !== 'undefined' ? totalReservations : 0) %></h3>
+                                </div>
+                                <i class="fas fa-calendar-alt fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Current Guests</h6>
+                                    <h3><%= (typeof currentGuests !== 'undefined' ? currentGuests.length : 0) %></h3>
+                                </div>
+                                <i class="fas fa-users fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-purple text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Earnings</h6>
+                                    <h3>$<%= (typeof totalEarnings !== 'undefined' ? totalEarnings.toLocaleString() : '0') %></h3>
+                                </div>
+                                <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guest Booking Tabs -->
+            <div id="guestTabs">
+                <ul class="nav nav-tabs" id="bookingTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">
+                            Upcoming (<%= upcomingBookings.length %>)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="current-tab" data-bs-toggle="tab" data-bs-target="#current" type="button" role="tab">
+                            Current (<%= currentBookings.length %>)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab">
+                            Past (<%= pastBookings.length %>)
+                        </button>
+                    </li>
+                    <% if (cancelledBookings.length > 0) { %>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled" type="button" role="tab">
+                            Cancelled (<%= cancelledBookings.length %>)
+                        </button>
+                    </li>
+                    <% } %>
+                </ul>
+            </div>
+
+            <!-- Host Tabs -->
+            <div id="hostTabs" style="display: none;">
+                <ul class="nav nav-tabs" id="hostBookingTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="upcoming-guests-tab" data-bs-toggle="tab" data-bs-target="#upcomingGuests" type="button" role="tab">
+                            Upcoming Guests (<%= (typeof upcomingGuests !== 'undefined' ? upcomingGuests.length : 0) %>)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="current-guests-tab" data-bs-toggle="tab" data-bs-target="#currentGuests" type="button" role="tab">
+                            Current Guests (<%= (typeof currentGuests !== 'undefined' ? currentGuests.length : 0) %>)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="past-guests-tab" data-bs-toggle="tab" data-bs-target="#pastGuests" type="button" role="tab">
+                            Past Guests (<%= (typeof pastGuests !== 'undefined' ? pastGuests.length : 0) %>)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab">
+                            My Properties (<%= (typeof ownedProperties !== 'undefined' ? ownedProperties.length : 0) %>)
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Guest Tab Content -->
+            <div id="guestContent">
+                <div class="tab-content" id="bookingTabsContent">
+                    <!-- Upcoming Bookings -->
+                    <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+                        <div class="mt-3">
+                            <% if (upcomingBookings.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No upcoming bookings</h5>
+                                    <p class="text-muted">Ready for your next adventure?</p>
+                                    <a href="/listings" class="btn btn-primary">Browse Listings</a>
+                                </div>
+                            <% } else { %>
+                                <% upcomingBookings.forEach(booking => { %>
+                                    <%- include('partials/booking-card', { booking, type: 'upcoming' }) %>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Current Bookings -->
+                    <div class="tab-pane fade" id="current" role="tabpanel">
+                        <div class="mt-3">
+                            <% if (currentBookings.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No current stays</h5>
+                                    <p class="text-muted">You're not currently staying anywhere</p>
+                                </div>
+                            <% } else { %>
+                                <% currentBookings.forEach(booking => { %>
+                                    <%- include('partials/booking-card', { booking, type: 'current' }) %>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Past Bookings -->
+                    <div class="tab-pane fade" id="past" role="tabpanel">
+                        <div class="mt-3">
+                            <% if (pastBookings.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No booking history</h5>
+                                    <p class="text-muted">Your past bookings will appear here</p>
+                                </div>
+                            <% } else { %>
+                                <% pastBookings.forEach(booking => { %>
+                                    <%- include('partials/booking-card', { booking, type: 'past' }) %>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Cancelled Bookings -->
+                    <% if (cancelledBookings.length > 0) { %>
+                    <div class="tab-pane fade" id="cancelled" role="tabpanel">
+                        <div class="mt-3">
+                            <% cancelledBookings.forEach(booking => { %>
+                                <%- include('partials/booking-card', { booking, type: 'cancelled' }) %>
+                            <% }) %>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Host Tab Content -->
+            <div id="hostContent" style="display: none;">
+                <div class="tab-content" id="hostTabsContent">
+                    <!-- Upcoming Guests -->
+                    <div class="tab-pane fade show active" id="upcomingGuests" role="tabpanel">
+                        <div class="mt-3">
+                            <% if (typeof upcomingGuests === 'undefined' || upcomingGuests.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No upcoming guests</h5>
+                                    <p class="text-muted">No reservations scheduled</p>
+                                    <% if (typeof ownedProperties === 'undefined' || ownedProperties.length === 0) { %>
+                                        <a href="/listings/new" class="btn btn-primary mt-3">
+                                            <i class="fas fa-plus me-2"></i>Add Your First Property
+                                        </a>
+                                    <% } %>
+                                </div>
+                            <% } else { %>
+                                <% upcomingGuests.forEach(reservation => { %>
+                                    <%- include('partials/guest-card', { reservation, type: 'upcoming' }) %>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Current Guests -->
+                    <div class="tab-pane fade" id="currentGuests" role="tabpanel">
+                        <div class="mt-3">
+                            <% if (typeof currentGuests === 'undefined' || currentGuests.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No current guests</h5>
+                                    <p class="text-muted">No one is currently staying at your properties</p>
+                                    <% if (typeof ownedProperties === 'undefined' || ownedProperties.length === 0) { %>
+                                        <a href="/listings/new" class="btn btn-primary mt-3">
+                                            <i class="fas fa-plus me-2"></i>List Your Property
+                                        </a>
+                                    <% } %>
+                                </div>
+                            <% } else { %>
+                                <% currentGuests.forEach(reservation => { %>
+                                    <%- include('partials/guest-card', { reservation, type: 'current' }) %>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Past Guests -->
+                    <div class="tab-pane fade" id="pastGuests" role="tabpanel">
+                        <div class="mt-3">
+                            <% if (typeof pastGuests === 'undefined' || pastGuests.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No guest history</h5>
+                                    <p class="text-muted">Your past guests will appear here</p>
+                                    <% if (typeof ownedProperties === 'undefined' || ownedProperties.length === 0) { %>
+                                        <a href="/listings/new" class="btn btn-primary mt-3">
+                                            <i class="fas fa-plus me-2"></i>Start Hosting
+                                        </a>
+                                    <% } %>
+                                </div>
+                            <% } else { %>
+                                <% pastGuests.forEach(reservation => { %>
+                                    <%- include('partials/guest-card', { reservation, type: 'past' }) %>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- My Properties -->
+                    <div class="tab-pane fade" id="properties" role="tabpanel">
+                        <div class="mt-3">
+                            <% if (typeof ownedProperties === 'undefined' || ownedProperties.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No properties listed</h5>
+                                    <p class="text-muted">Start earning by listing your property!</p>
+                                    <a href="/listings/new" class="btn btn-success btn-lg mt-3">
+                                        <i class="fas fa-plus me-2"></i>List Your Property
+                                    </a>
+                                    <div class="mt-4">
+                                        <div class="row text-center">
+                                            <div class="col-md-4">
+                                                <i class="fas fa-camera fa-2x text-primary mb-2"></i>
+                                                <h6>Upload Photos</h6>
+                                                <small class="text-muted">Showcase your space</small>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+                                                <h6>Set Your Price</h6>
+                                                <small class="text-muted">You control the rates</small>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <i class="fas fa-users fa-2x text-info mb-2"></i>
+                                                <h6>Welcome Guests</h6>
+                                                <small class="text-muted">Start earning money</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <div class="row">
+                                    <% ownedProperties.forEach(property => { %>
+                                        <div class="col-md-6 mb-4">
+                                            <%- include('partials/property-card', { property }) %>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 auto;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+.nav-tabs .nav-link {
+    color: #667eea;
+}
+
+.bg-purple {
+    background-color: #6f42c1 !important;
+}
+
+.dashboard-toggle-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.view-toggle {
+    display: flex;
+    background-color: white;
+    border-radius: 25px;
+    padding: 4px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #dee2e6;
+}
+
+.btn-toggle {
+    background: transparent;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #6c757d;
+    margin: 0 2px;
+}
+
+.btn-toggle:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.btn-toggle.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    transform: translateY(-1px);
+}
+
+.toggle-header h4 {
+    color: #333;
+    font-weight: 600;
+}
+
+.view-description {
+    border-top: 1px solid #e9ecef;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+    .toggle-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .view-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+// Toggle Functions
+function switchToGuest() {
+    // Update toggle buttons
+    document.getElementById('guestToggle').classList.add('active');
+    document.getElementById('hostToggle').classList.remove('active');
+    
+    // Update title and description
+    document.getElementById('currentViewTitle').innerHTML = '<i class="fas fa-suitcase me-2"></i>My Bookings';
+    document.getElementById('guestDescription').style.display = 'block';
+    document.getElementById('hostDescription').style.display = 'none';
+    
+    // Show guest content
+    document.getElementById('guestStats').style.display = 'flex';
+    document.getElementById('guestTabs').style.display = 'block';
+    document.getElementById('guestContent').style.display = 'block';
+    
+    // Hide host content
+    if (document.getElementById('hostStats')) {
+        document.getElementById('hostStats').style.display = 'none';
+        document.getElementById('hostTabs').style.display = 'none';
+        document.getElementById('hostContent').style.display = 'none';
+    }
+    
+    // Activate first guest tab
+    const firstGuestTab = document.querySelector('#bookingTabs .nav-link');
+    const firstGuestContent = document.querySelector('#bookingTabsContent .tab-pane');
+    if (firstGuestTab && firstGuestContent) {
+        // Remove active from all tabs
+        document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.remove('show', 'active');
+        });
+        
+        // Activate first guest tab
+        firstGuestTab.classList.add('active');
+        firstGuestContent.classList.add('show', 'active');
+    }
+}
+
+function switchToHost() {
+    // Update toggle buttons
+    document.getElementById('hostToggle').classList.add('active');
+    document.getElementById('guestToggle').classList.remove('active');
+    
+    // Update title and description
+    document.getElementById('currentViewTitle').innerHTML = '<i class="fas fa-home me-2"></i>My Properties';
+    document.getElementById('guestDescription').style.display = 'none';
+    document.getElementById('hostDescription').style.display = 'block';
+    
+    // Hide guest content
+    document.getElementById('guestStats').style.display = 'none';
+    document.getElementById('guestTabs').style.display = 'none';
+    document.getElementById('guestContent').style.display = 'none';
+    
+    // Show host content
+    if (document.getElementById('hostStats')) {
+        document.getElementById('hostStats').style.display = 'flex';
+        document.getElementById('hostTabs').style.display = 'block';
+        document.getElementById('hostContent').style.display = 'block';
+        
+        // Activate first host tab
+        const firstHostTab = document.querySelector('#hostBookingTabs .nav-link');
+        const firstHostContent = document.querySelector('#hostTabsContent .tab-pane');
+        if (firstHostTab && firstHostContent) {
+            // Remove active from all tabs
+            document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+            
+            // Activate first host tab
+            firstHostTab.classList.add('active');
+            firstHostContent.classList.add('show', 'active');
+        }
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Start with guest view by default
+    switchToGuest();
+});
+
+// Interactive functions
+function contactGuest(email) {
+    window.location.href = `mailto:${email}?subject=Regarding your upcoming stay`;
+}
+
+function checkOnGuest(reservationId) {
+    alert('Check-in functionality would be implemented here');
+}
+
+function viewReservationDetails(reservationId) {
+    alert('Reservation details modal would be implemented here');
+}
+
+function viewPropertyStats(propertyId) {
+    alert('Property statistics would be implemented here');
+}
+
+function showBookingDetails(bookingId) {
+    alert('Booking details modal would be implemented here');
+}
+
+function writeReview(listingId) {
+    window.location.href = `/listings/${listingId}#reviews`;
+}
+</script>
